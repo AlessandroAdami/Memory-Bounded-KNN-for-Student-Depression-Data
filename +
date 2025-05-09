@@ -1,0 +1,10 @@
+# Please enter the commit message for your changes. Lines starting
+# with '#' will be ignored, and an empty message aborts the commit.
+#
+# On branch main
+# Changes to be committed:
+#	new file:   data_cleaner.py
+#	new file:   ../data/cleaned_student_depression_dataset.csv
+#	new file:   ../data/cleared_student_depression_dataset.csv
+#
+Cleaned dataset and created new one (backup still here)
