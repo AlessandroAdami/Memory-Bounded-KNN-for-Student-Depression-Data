@@ -8,8 +8,6 @@ The dataset is expected to be in CSV format and should contain the following col
 
 We encode Male as 0 and Female as 1.
 """
-    
-
 df = pd.read_csv('../data/student_depression_dataset.csv') # cd in the 'code' directory to use this
 
 # Checking for duplicated ids
