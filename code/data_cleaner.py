@@ -1,4 +1,9 @@
 import pandas as pd
+import numpy as np
+# Packages for imputation
+from sklearn.experimental import enable_iterative_imputer  # noqa
+from sklearn.impute import IterativeImputer
+from sklearn.ensemble import RandomForestRegressor
 
 """
 This script is used to clean the dataset for the student depression prediction model.
@@ -18,10 +23,10 @@ if duplicate_count > 0:
 # Dropping unnecessary columns
 df.drop(columns=["id"], inplace=True)
 df.drop(columns=['City'], inplace=True)
-df.drop(columns=['Profession'], inplace=True)
+df.drop(columns=['Profession'], inplace=True) # This column is filled with "Student"
 df.drop(columns=['Work Pressure'], inplace=True) # This column is filled with 0.0s
-df.drop(columns=['Job Satisfaction'], inplace=True)
-df.drop(columns=['Degree'], inplace=True) # TODO: maybe chanbge to one hot encoding?
+df.drop(columns=['Job Satisfaction'], inplace=True) # This column is filled with 0.0s
+df.drop(columns=['Degree'], inplace=True)
  
 # Look at unique values in each column
 for column in df.columns:
@@ -29,32 +34,47 @@ for column in df.columns:
     print(df[column].unique())
     print('-' * 40)
 
-# Check for missing values, the dataset uses the value 'Others' to indicate missing values, except for 'Finintial Stress' column which uses '?'
+# Check for missing values, the dataset uses the value 'Others' to indicate missing values
+# except for 'Finintial Stress' column which uses '?'
+# We replace 'Others' with NaN and '?' with NaN
 
-df = df[~df.apply(lambda row: row.astype(str).eq('Others').any(), axis=1)] # remove rows with 'Others'
-df = df[~df.apply(lambda row: row.astype(str).eq('?').any(), axis=1)]      # remove rows with '?'
+df.replace('Others', np.nan, inplace=True)
+df.replace('?', np.nan, inplace=True)
+# Check for any remaining missing values
+missing_values = df.isnull().sum()
+print("Missing values in each column:")
+print(missing_values[missing_values > 0])
 
 
-rows_with_bad_labels = df[df.apply(lambda col: col.astype(str).isin(['Others', '?'])).any(axis=1)]
-print(rows_with_bad_labels.shape[0]==0) # check if there are still any rows with bad labels
-
-
-# Convert categorical columns to numerical values (by one hot encoding)
+# Convert categorical columns to numerical values
 df['Gender'] = df['Gender'].map({'Male': 0, 'Female': 1})
 df['Family History of Mental Illness'] = df['Family History of Mental Illness'].map({'No': 0, 'Yes': 1})
 df['Have you ever had suicidal thoughts ?'] = df['Have you ever had suicidal thoughts ?'].map({'No': 0, 'Yes': 1})
 
-# TODO: check if this encoding is valuable/correct
-df['Sleep Duration'] = df['Sleep Duration'].map({'\'Less than 5 hours\'': 0, 
-                                                 '\'5-6 hours\'': 1, 
-                                                 '\'7-8 hours\'': 2, 
-                                                 '\'More than 8 hours\'': 3})
+# Replace intial Stress with numerical values that are mean of the range
+df['Sleep Duration'] = df['Sleep Duration'].map({'\'Less than 5 hours\'': 2.5, 
+                                                 '\'5-6 hours\'': 5.5, 
+                                                 '\'7-8 hours\'': 7.5, 
+                                                 '\'More than 8 hours\'': 9.5})
 
-df['Dietary Habits'] = df['Dietary Habits'].map({'Unhealthy': -1,
-                                                 'Moderate': 0, 
-                                                 'Healthy': 1})
+# Replace 'Dieatary Habits' with one-hot encoding
+
+one_hot = pd.get_dummies(df['Dietary Habits'])
+one_hot.columns = ['Dietary_Habits_Unhealthy', 'Dietary_Habits_Moderate', 'Dietary_Habits_Healthy']
+for label in one_hot.columns:
+    one_hot[label] = one_hot[label].astype(int)
+df = df.drop('Dietary Habits', axis=1)
+df = pd.concat([df, one_hot], axis=1)
+
+# Impute missing values using IterativeImputer with Regularized Liner Regression
+imputer = IterativeImputer(max_iter=10, random_state=0)
+df_imputed = imputer.fit_transform(df)
+df = pd.DataFrame(df_imputed, columns=df.columns)
+# Check for any remaining missing values
+missing_values = df.isnull().sum()
+print("Missing values in each column after imputation:" + str(missing_values.sum()))
+print(missing_values[missing_values > 0])
 
 print(df.head())
-print(df.tail())
 
 df.to_csv('../data/cleaned_student_depression_dataset.csv', index=False) # save cleaned dataset
