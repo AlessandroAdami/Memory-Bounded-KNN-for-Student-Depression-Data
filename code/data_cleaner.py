@@ -26,7 +26,6 @@ df.drop(columns=['City'], inplace=True)
 df.drop(columns=['Profession'], inplace=True) # This column is filled with "Student"
 df.drop(columns=['Work Pressure'], inplace=True) # This column is filled with 0.0s
 df.drop(columns=['Job Satisfaction'], inplace=True) # This column is filled with 0.0s
-#df.drop(columns=['Degree'], inplace=True)
  
 for column in df.columns:
     print(f"Unique values in '{column}':")
@@ -62,7 +61,7 @@ for label in one_hot.columns:
 df = df.drop('Dietary Habits', axis=1)
 df = pd.concat([df, one_hot], axis=1)
 
-# Replace 'Degree' with one-hot encoding
+# Replace 'Degree' with numerical values for imputation
 df['Degree'] = df['Degree'].map({'B.Pharm': 0, 'BSc': 0, 'BA': 0, 'BCA': 0, 'B.Ed': 0, 'BE': 0, 'BHM': 0, 'B.Com': 0, 'B.Arch': 0,'B.Tech': 0, 'LLB': 0, 'MBBS': 0, 'BBA': 0,
                                  'M.Tech': 1, 'M.Ed': 1, 'MSc': 1, 'M.Pharm': 1, 'MCA': 1, 'MA': 1, 'MBA': 1, 'M.Com': 1, 'LLM': 1, 'ME': 1, 'MHM': 1,
                                  'PhD': 2, 'MD': 2,
@@ -71,7 +70,6 @@ df['Degree'] = df['Degree'].map({'B.Pharm': 0, 'BSc': 0, 'BA': 0, 'BCA': 0, 'B.E
 imputer = IterativeImputer(max_iter=10, random_state=0)
 df_imputed = imputer.fit_transform(df)
 df = pd.DataFrame(df_imputed, columns=df.columns)
-# Check for any remaining missing values
 missing_values = df.isnull().sum()
 print("Missing values in each column after imputation:" + str(missing_values.sum()))
 print(missing_values[missing_values > 0])

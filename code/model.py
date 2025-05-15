@@ -14,12 +14,11 @@ y = df['Depression']
 from sklearn.preprocessing import StandardScaler
 scaler = StandardScaler()
 X = scaler.fit_transform(X)
-print(X[0:5])
 
 
 # Split the dataset into training and testing sets
 from sklearn.model_selection import train_test_split
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3)
 
 for k in range(1, 60, 20):
     classifier = KNeighborsClassifier(n_neighbors=k,weights='distance')
@@ -29,5 +28,9 @@ for k in range(1, 60, 20):
     # Make predictions on the test data
     y_pred = classifier.predict(X_test)
     # Evaluate the classifier
-    print(classifier.score(X_test, y_test))
+    print(f"k={k}")
+    print(f"Accuracy = {classifier.score(X_test, y_test)}")
+    print(confusion_matrix(y_test, y_pred))
+    print(classification_report(y_test, y_pred))
+    print('-' * 40)
 
