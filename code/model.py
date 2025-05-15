@@ -10,12 +10,18 @@ df = pd.read_csv('../data/cleaned_student_depression_dataset.csv')
 X = df.drop(columns=['Depression'])
 y = df['Depression']
 
+# Sandardize the features
+from sklearn.preprocessing import StandardScaler
+scaler = StandardScaler()
+X = scaler.fit_transform(X)
+print(X[0:5])
+
 
 # Split the dataset into training and testing sets
 from sklearn.model_selection import train_test_split
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)
 
-for k in range(1, 100, 20):
+for k in range(1, 60, 20):
     classifier = KNeighborsClassifier(n_neighbors=k,weights='distance')
 
     # Fit the classifier to the training data
