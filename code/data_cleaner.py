@@ -66,6 +66,7 @@ df['Degree'] = df['Degree'].map({'B.Pharm': 0, 'BSc': 0, 'BA': 0, 'BCA': 0, 'B.E
                                  'M.Tech': 1, 'M.Ed': 1, 'MSc': 1, 'M.Pharm': 1, 'MCA': 1, 'MA': 1, 'MBA': 1, 'M.Com': 1, 'LLM': 1, 'ME': 1, 'MHM': 1,
                                  'PhD': 2, 'MD': 2,
                                  '\'Class 12\'': 3})
+
 # Impute missing values using IterativeImputer with Regularized Liner Regression
 imputer = IterativeImputer(max_iter=10, random_state=0)
 df_imputed = imputer.fit_transform(df)

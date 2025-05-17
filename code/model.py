@@ -4,20 +4,22 @@ import pandas as pd
 import numpy as np
 
 
-# Load the dataset
+# Load dataset
 
 df = pd.read_csv('../data/cleaned_student_depression_dataset.csv')
-# Drop the target column from the features
+# Drop target column from features
 X = df.drop(columns=['Depression'])
 y = df['Depression']
 
-# Sandardize the features
+print(X[0:5])
+
+# Sandardize features
 from sklearn.preprocessing import StandardScaler
 scaler = StandardScaler()
 X = scaler.fit_transform(X)
 
 
-# Split the dataset into training and testing sets
+# Split dataset into training and testing sets
 from sklearn.model_selection import train_test_split
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)
 
@@ -36,10 +38,10 @@ def confusionMatrix(y_test, y_pred):
 for k in [1,20,40,60]:
     classifier = KNeighborsClassifier(n_neighbors=k,weights='distance')
 
-    # Fit the classifier to the training data and make predictions
+    # Fit classifier to training data and make predictions
     classifier.fit(X_train, y_train)
     y_pred = classifier.predict(X_test)
-    # Evaluate the classifier
+    # Evaluate classifier
     print(f"k={k}")
     print(f"Accuracy = {classifier.score(X_test, y_test)}")
     print(confusionMatrix(y_test, y_pred))
