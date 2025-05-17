@@ -1,7 +1,9 @@
 from sklearn.neighbors import KNeighborsClassifier
-from sklearn.metrics import classification_report, confusion_matrix
+from sklearn.metrics import classification_report
+from knnMemoryBounded import KNNMemoryBounded
 import pandas as pd
 import numpy as np
+from util import *
 
 
 # Load dataset
@@ -23,17 +25,7 @@ X = scaler.fit_transform(X)
 from sklearn.model_selection import train_test_split
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)
 
-def confusionMatrix(y_test, y_pred):
-    """
-    Returns confusion matrix accoring to standard format
-    """
-    cm = confusion_matrix(y_test, y_pred)
-    TP = cm[1][1]
-    TN = cm[0][0]
-    FP = cm[0][1]
-    FN = cm[1][0]
-    return np.array([[TP, FN],
-                     [FP, TN]])
+
 
 for k in [1,20,40,60]:
     classifier = KNeighborsClassifier(n_neighbors=k,weights='distance')
@@ -46,4 +38,19 @@ for k in [1,20,40,60]:
     print(f"Accuracy = {classifier.score(X_test, y_test)}")
     print(confusionMatrix(y_test, y_pred))
     print(classification_report(y_test, y_pred))
+    dict = classification_report(y_test, y_pred, output_dict=True)
+    print(f"F1 score = {dict['1.0']['f1-score']}")
+
+    print('%' * 40)
+
+    print("Memory bounded classifier:")
+    classifier = KNNMemoryBounded(k=k, buffer_size=500, weights='distance')
+    classifier.fit(X_train, y_train)
+    y_pred = classifier.predict(X_test)
+    # Evaluate classifier
+    print(f"Accuracy = {classifier.score(X_test, y_test)}")
+    print(confusionMatrix(y_test, y_pred))
+    print(classification_report(y_test, y_pred))
+    dict = classification_report(y_test, y_pred, output_dict=True)
+    print(f"F1 score = {dict['1.0']['f1-score']}")
     print('-' * 40)
