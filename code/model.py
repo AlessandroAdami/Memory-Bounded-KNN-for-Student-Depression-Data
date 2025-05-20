@@ -2,10 +2,11 @@ from sklearn.neighbors import KNeighborsClassifier
 from sklearn.metrics import classification_report
 from knnMemoryBounded import KNNMemoryBounded
 import pandas as pd
-import numpy as np
 from util import *
 import matplotlib.pyplot as plt
+import time
 
+start = time.time()
 
 # Load dataset
 
@@ -21,13 +22,12 @@ from sklearn.preprocessing import StandardScaler
 scaler = StandardScaler()
 X = scaler.fit_transform(X)
 
-
 # Split dataset into training and testing sets
 from sklearn.model_selection import train_test_split
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)
 
 import matplotlib.pyplot as plt
-from sklearn.metrics import classification_report, confusion_matrix as confusionMatrix
+from sklearn.metrics import classification_report
 from sklearn.neighbors import KNeighborsClassifier
 
 # Store metrics for plotting
@@ -55,9 +55,9 @@ for k in k_values:
     print(confusionMatrix(y_test, y_pred))
     print(classification_report(y_test, y_pred))
     report = classification_report(y_test, y_pred, output_dict=True)
-    f1 = report['1.0']['f1-score']
-    prec = report['1.0']['precision']
-    rec = report['1.0']['recall']
+    f1 = report['macro avg']['f1-score']
+    prec = report['macro avg']['precision']
+    rec = report['macro avg']['recall']
     print(f"F1 score = {f1}")
     print('%' * 40)
 
@@ -77,9 +77,9 @@ for k in k_values:
     print(confusionMatrix(y_test, y_pred))
     print(classification_report(y_test, y_pred))
     report = classification_report(y_test, y_pred, output_dict=True)
-    f1 = report['1.0']['f1-score']
-    prec = report['1.0']['precision']
-    rec = report['1.0']['recall']
+    f1 = report['macro avg']['f1-score']
+    prec = report['macro avg']['precision']
+    rec = report['macro avg']['recall']
     print(f"F1 score = {f1}")
     print('-' * 40)
 
@@ -89,7 +89,8 @@ for k in k_values:
     metrics['recall_memory'].append(rec)
     metrics['f1_memory'].append(f1)
 
-# Plotting
+# Plot results
+
 bar_width = 0.35
 x = range(len(metrics['k']))
 
@@ -115,5 +116,6 @@ for ax, title, keys in zip(axs.ravel(), titles, metric_keys):
 
 plt.suptitle('Comparison of KNN vs Memory-Bounded KNN')
 plt.tight_layout()
-plt.savefig('plots/knn_comparison.png', dpi=300)  # You can specify a full path if needed
+plt.savefig('plots/knn_comparison.png', dpi=300)
 plt.show()
+print(time.time() - start)

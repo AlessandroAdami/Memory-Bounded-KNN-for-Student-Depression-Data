@@ -2,6 +2,8 @@ from sklearn.neighbors import KNeighborsClassifier
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import classification_report
 from util import *
+from concurrent.futures import ThreadPoolExecutor, as_completed # for parallel computation
+
 
 
 class KNNMemoryBounded:
@@ -25,7 +27,7 @@ class KNNMemoryBounded:
         self.classifier = None
 
 
-    def fit(self, X, y, iterations=10):
+    def fit_sequential(self, X, y, iterations=10):
         """
         Fit the KNNMemoryBounded classifier to the training data.
 
@@ -38,19 +40,50 @@ class KNNMemoryBounded:
         best_model = None
         best_f1_score = 0
 
-        # Note: this can be done in parallel, look into it
         for _ in range(iterations):
             X_train, X_test, y_train, y_test = train_test_split(X, y, train_size=self.buffer_size)
             classifier = KNeighborsClassifier(n_neighbors=self.k, weights=self.weights)
             classifier.fit(X_train, y_train)
             y_pred = classifier.predict(X_test)
 
-            # TODO: think of a way to pick the best model, for now we just use f1-score
             classification_dict = classification_report(y_test, y_pred, output_dict=True)
-            f1_score = classification_dict['1.0']['f1-score']
+
+            f1_score = classification_dict['macro avg']['f1-score']
             if f1_score > best_f1_score:
                 best_f1_score = f1_score
                 best_model = classifier
+
+        self.classifier = best_model
+    
+    def fit(self, X, y, iterations=10):
+        """
+        Fit the KNNMemoryBounded classifier to the training data.
+
+        Parameters:
+        - X: Training data features.
+        - y: Training data labels.
+        - iterations: the number of random subdatasets we check
+        """
+        
+        def evaluate_subset(_):
+            X_train, X_test, y_train, y_test = train_test_split(X, y, train_size=self.buffer_size)
+            classifier = KNeighborsClassifier(n_neighbors=self.k, weights=self.weights)
+            classifier.fit(X_train, y_train)
+            y_pred = classifier.predict(X_test)
+            classification_dict = classification_report(y_test, y_pred, output_dict=True)
+            f1 = classification_dict['macro avg']['f1-score']
+            return f1, classifier
+
+        best_model = None
+        best_f1_score = 0
+
+        with ThreadPoolExecutor() as executor:
+            futures = [executor.submit(evaluate_subset, _) for _ in range(iterations)]
+            for future in as_completed(futures):
+                f1_score, model = future.result()
+                if f1_score > best_f1_score:
+                    best_f1_score = f1_score
+                    best_model = model
 
         self.classifier = best_model
 

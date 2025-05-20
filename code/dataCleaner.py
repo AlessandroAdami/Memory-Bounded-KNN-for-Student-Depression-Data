@@ -2,7 +2,6 @@ import pandas as pd
 import numpy as np
 from sklearn.experimental import enable_iterative_imputer  # noqa
 from sklearn.impute import IterativeImputer
-from sklearn.ensemble import RandomForestRegressor
 
 """
 This script is used to clean the dataset for the student depression prediction model.
@@ -33,7 +32,7 @@ for column in df.columns:
 df.replace('Others', np.nan, inplace=True)
 df.replace('?', np.nan, inplace=True)
 missing_values = df.isnull().sum()
-print("Missing values in each column:")
+print("Missing values in each column before imputation:")
 print(missing_values[missing_values > 0])
 
 
