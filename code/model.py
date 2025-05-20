@@ -4,6 +4,7 @@ from knnMemoryBounded import KNNMemoryBounded
 import pandas as pd
 import numpy as np
 from util import *
+import matplotlib.pyplot as plt
 
 
 # Load dataset
@@ -25,32 +26,94 @@ X = scaler.fit_transform(X)
 from sklearn.model_selection import train_test_split
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)
 
+import matplotlib.pyplot as plt
+from sklearn.metrics import classification_report, confusion_matrix as confusionMatrix
+from sklearn.neighbors import KNeighborsClassifier
 
+# Store metrics for plotting
+k_values = [1, 20, 40, 60]
+metrics = {
+    'k': [],
+    'accuracy_regular': [],
+    'precision_regular': [],
+    'recall_regular': [],
+    'f1_regular': [],
+    'accuracy_memory': [],
+    'precision_memory': [],
+    'recall_memory': [],
+    'f1_memory': []
+}
 
-for k in [1,20,40,60]:
-    classifier = KNeighborsClassifier(n_neighbors=k,weights='distance')
-
-    # Fit classifier to training data and make predictions
+for k in k_values:
+    classifier = KNeighborsClassifier(n_neighbors=k, weights='distance')
     classifier.fit(X_train, y_train)
     y_pred = classifier.predict(X_test)
-    # Evaluate classifier
+
     print(f"k={k}")
-    print(f"Accuracy = {classifier.score(X_test, y_test)}")
+    acc = classifier.score(X_test, y_test)
+    print(f"Accuracy = {acc}")
     print(confusionMatrix(y_test, y_pred))
     print(classification_report(y_test, y_pred))
-    dict = classification_report(y_test, y_pred, output_dict=True)
-    print(f"F1 score = {dict['1.0']['f1-score']}")
-
+    report = classification_report(y_test, y_pred, output_dict=True)
+    f1 = report['1.0']['f1-score']
+    prec = report['1.0']['precision']
+    rec = report['1.0']['recall']
+    print(f"F1 score = {f1}")
     print('%' * 40)
+
+    # Store regular metrics
+    metrics['k'].append(k)
+    metrics['accuracy_regular'].append(acc)
+    metrics['precision_regular'].append(prec)
+    metrics['recall_regular'].append(rec)
+    metrics['f1_regular'].append(f1)
 
     print("Memory bounded classifier:")
     classifier = KNNMemoryBounded(k=k, buffer_size=500, weights='distance')
     classifier.fit(X_train, y_train)
     y_pred = classifier.predict(X_test)
-    # Evaluate classifier
-    print(f"Accuracy = {classifier.score(X_test, y_test)}")
+    acc = classifier.score(X_test, y_test)
+    print(f"Accuracy = {acc}")
     print(confusionMatrix(y_test, y_pred))
     print(classification_report(y_test, y_pred))
-    dict = classification_report(y_test, y_pred, output_dict=True)
-    print(f"F1 score = {dict['1.0']['f1-score']}")
+    report = classification_report(y_test, y_pred, output_dict=True)
+    f1 = report['1.0']['f1-score']
+    prec = report['1.0']['precision']
+    rec = report['1.0']['recall']
+    print(f"F1 score = {f1}")
     print('-' * 40)
+
+    # Store memory-bounded metrics
+    metrics['accuracy_memory'].append(acc)
+    metrics['precision_memory'].append(prec)
+    metrics['recall_memory'].append(rec)
+    metrics['f1_memory'].append(f1)
+
+# Plotting
+bar_width = 0.35
+x = range(len(metrics['k']))
+
+fig, axs = plt.subplots(2, 2, figsize=(14, 10))
+titles = ['Accuracy', 'Precision', 'Recall', 'F1-score']
+metric_keys = [
+    ('accuracy_regular', 'accuracy_memory'),
+    ('precision_regular', 'precision_memory'),
+    ('recall_regular', 'recall_memory'),
+    ('f1_regular', 'f1_memory')
+]
+
+for ax, title, keys in zip(axs.ravel(), titles, metric_keys):
+    ax.bar([i - bar_width/2 for i in x], metrics[keys[0]], width=bar_width, label='Regular KNN')
+    ax.bar([i + bar_width/2 for i in x], metrics[keys[1]], width=bar_width, label='Memory-Bounded KNN')
+    ax.set_title(title)
+    ax.set_xticks(x)
+    ax.set_xticklabels(metrics['k'])
+    ax.set_xlabel('k')
+    ax.set_ylim(0, 1.1)
+    ax.legend()
+    ax.grid(True)
+
+plt.suptitle('Comparison of KNN vs Memory-Bounded KNN')
+plt.tight_layout()
+plt.savefig('plots/knn_comparison.png', dpi=300)  # You can specify a full path if needed
+plt.show()

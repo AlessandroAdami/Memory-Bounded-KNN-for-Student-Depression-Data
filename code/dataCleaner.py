@@ -1,17 +1,12 @@
 import pandas as pd
 import numpy as np
-# Packages for imputation
 from sklearn.experimental import enable_iterative_imputer  # noqa
 from sklearn.impute import IterativeImputer
 from sklearn.ensemble import RandomForestRegressor
 
 """
 This script is used to clean the dataset for the student depression prediction model.
-The dataset is expected to be in CSV format and should contain the following columns:
-- id: Unique identifier for each entry
-...
-
-We encode Male as 0 and Female as 1.
+The dataset is expected to be in CSV format.
 """
 df = pd.read_csv('../data/student_depression_dataset.csv') # cd in the 'code' directory to use this
 

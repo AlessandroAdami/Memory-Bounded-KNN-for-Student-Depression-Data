@@ -17,6 +17,7 @@ class KNNMemoryBounded:
         Parameters:
         - k: Number of neighbors to consider for classification.
         - buffer_size: Maximum number of training samples to store in memory.
+        - weights: function KNN uses to calculate distances between points
         """
         self.k = k
         self.buffer_size = buffer_size
@@ -31,19 +32,20 @@ class KNNMemoryBounded:
         Parameters:
         - X: Training data features.
         - y: Training data labels.
+        - iterations: the number of random subdatasets we check
         """
 
         best_model = None
         best_f1_score = 0
 
-        # Note: this can be done in parallel, look into its
+        # Note: this can be done in parallel, look into it
         for _ in range(iterations):
             X_train, X_test, y_train, y_test = train_test_split(X, y, train_size=self.buffer_size)
             classifier = KNeighborsClassifier(n_neighbors=self.k, weights=self.weights)
             classifier.fit(X_train, y_train)
             y_pred = classifier.predict(X_test)
 
-            # TODO: think of a way to pick the best model based on accuracy and confusion matrix or f1 score?
+            # TODO: think of a way to pick the best model, for now we just use f1-score
             classification_dict = classification_report(y_test, y_pred, output_dict=True)
             f1_score = classification_dict['1.0']['f1-score']
             if f1_score > best_f1_score:
