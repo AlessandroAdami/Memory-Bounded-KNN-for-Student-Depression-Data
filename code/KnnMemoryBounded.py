@@ -12,7 +12,7 @@ class KNNMemoryBounded:
     It uses a fixed-size memory buffer to store the training data and perform KNN classification.
     """
 
-    def __init__(self, k=3, buffer_size=100, weights='distance'):
+    def __init__(self, k=3, buffer_size=100, weights='distance', parallelize=True):
         """
         Initialize the KNNMemoryBounded classifier.
 
@@ -25,9 +25,12 @@ class KNNMemoryBounded:
         self.buffer_size = buffer_size
         self.weights = weights
         self.classifier = None
+        self.parallelize = parallelize
 
+    def fit(self, X, y, iterations=10):
+        self.fit_parallel(X,y,iterations=iterations) if self.parallelize else self.fit_sequential(X,y,iterations=iterations)
 
-    def fit_sequential(self, X, y, iterations=10):
+    def fit_sequential(self, X, y, iterations):
         """
         Fit the KNNMemoryBounded classifier to the training data.
 
@@ -55,7 +58,7 @@ class KNNMemoryBounded:
 
         self.classifier = best_model
     
-    def fit(self, X, y, iterations=10):
+    def fit_parallel(self, X, y, iterations):
         """
         Fit the KNNMemoryBounded classifier to the training data.
 

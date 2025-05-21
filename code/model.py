@@ -6,7 +6,7 @@ from util import *
 import matplotlib.pyplot as plt
 import time
 
-start = time.time()
+start_time = time.time()
 
 # Load dataset
 
@@ -69,8 +69,8 @@ for k in k_values:
     metrics['f1_regular'].append(f1)
 
     print("Memory bounded classifier:")
-    classifier = KNNMemoryBounded(k=k, buffer_size=500, weights='distance')
-    classifier.fit(X_train, y_train)
+    classifier = KNNMemoryBounded(k=k, buffer_size=500, weights='distance',parallelize=True) # less than 2% of all the points!
+    classifier.fit(X_train, y_train,iterations=10) # 10 random KNN models checked
     y_pred = classifier.predict(X_test)
     acc = classifier.score(X_test, y_test)
     print(f"Accuracy = {acc}")
@@ -118,4 +118,4 @@ plt.suptitle('Comparison of KNN vs Memory-Bounded KNN')
 plt.tight_layout()
 plt.savefig('plots/knn_comparison.png', dpi=300)
 plt.show()
-print(time.time() - start)
+print(time.time() - start_time)
