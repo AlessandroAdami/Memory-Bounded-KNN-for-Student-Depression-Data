@@ -1,13 +1,13 @@
 import pandas as pd
 import numpy as np
-from sklearn.experimental import enable_iterative_imputer  # noqa
+from sklearn.experimental import enable_iterative_imputer  # necessary to use module below
 from sklearn.impute import IterativeImputer
 
 """
 This script is used to clean the dataset for the student depression prediction model.
 The dataset is expected to be in CSV format.
 """
-df = pd.read_csv('../data/student_depression_dataset.csv') # cd in the 'code' directory to use this
+df = pd.read_csv('../data/student_depression_dataset.csv')
 
 # Checking for duplicated ids
 duplicate_count = df.duplicated(subset='id').sum()
@@ -20,7 +20,7 @@ df.drop(columns=['City'], inplace=True)
 df.drop(columns=['Profession'], inplace=True) # This column is filled with "Student"
 df.drop(columns=['Work Pressure'], inplace=True) # This column is filled with 0.0s
 df.drop(columns=['Job Satisfaction'], inplace=True) # This column is filled with 0.0s
- 
+
 for column in df.columns:
     print(f"Unique values in '{column}':")
     print(df[column].unique())
@@ -77,7 +77,7 @@ for label in one_hot.columns:
     one_hot[label] = one_hot[label].astype(int)
 df = df.drop('Degree', axis=1)
 df = pd.concat([df, one_hot], axis=1)
+df = df[[col for col in df.columns if col != 'Depression'] + ['Depression']] # set 'Depression' as last column
 print(df.head())
-
 
 df.to_csv('../data/cleaned_student_depression_dataset.csv', index=False) # save cleaned dataset

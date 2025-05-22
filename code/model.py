@@ -4,13 +4,13 @@ from knnMemoryBounded import KNNMemoryBounded
 import pandas as pd
 from util import *
 import matplotlib.pyplot as plt
-import time
+from time import time
 
-start_time = time.time()
+start_time = time()
 
 # Load dataset
 
-df = pd.read_csv('../data/cleaned_student_depression_dataset.csv')
+df = pd.read_csv('../data/reduced_student_depression_dataset.csv')
 # Drop target column from features
 X = df.drop(columns=['Depression'])
 y = df['Depression']
@@ -24,14 +24,11 @@ X = scaler.fit_transform(X)
 
 # Split dataset into training and testing sets
 from sklearn.model_selection import train_test_split
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)
-
-import matplotlib.pyplot as plt
-from sklearn.metrics import classification_report
-from sklearn.neighbors import KNeighborsClassifier
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3)
 
 # Store metrics for plotting
-k_values = [1, 20, 40, 60]
+#k_values = [1, 20, 40, 60]
+k_values = [1,2,4,8,16]
 metrics = {
     'k': [],
     'accuracy_regular': [],
@@ -118,4 +115,4 @@ plt.suptitle('Comparison of KNN vs Memory-Bounded KNN')
 plt.tight_layout()
 plt.savefig('plots/knn_comparison.png', dpi=300)
 plt.show()
-print(time.time() - start_time)
+print(time() - start_time)
