@@ -14,7 +14,7 @@ scaler = StandardScaler()
 X_scaled = scaler.fit_transform(X)
 
 knn = KNeighborsClassifier(n_neighbors=8) # k = 8 does well on the full dataset
-sfs = SequentialFeatureSelector(knn, n_features_to_select=8, direction='forward') # fiddle around w/ n_features
+sfs = SequentialFeatureSelector(knn, n_features_to_select=8, direction='forward') # n_features_to_select = 8 does as well as all features
 sfs.fit(X_scaled, y)
 selected_features = sfs.get_support(indices=True)
 X_selected = X.iloc[:, selected_features]
