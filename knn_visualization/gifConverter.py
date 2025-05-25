@@ -24,9 +24,11 @@ print(video_files)
 for video_path in video_files:
     try:
         clip = VideoFileClip(video_path)
+        w, h = clip.size
+        clip = clip.resized(width=w/1.5,height=h/1.5) # Compress clips to required size
         base_name = os.path.splitext(os.path.basename(video_path))[0]
         gif_path = os.path.join(gif_output_dir, f"{base_name}.gif")
-        clip.write_gif(gif_path, fps=11.5)
+        clip.write_gif(gif_path, fps=15)
         print(f"Exported GIF: {gif_path}")
         clip.close()
     except Exception as e:
