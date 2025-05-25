@@ -1,3 +1,3 @@
-# ml_student_depression
+# Memory Bounded K-Nearest Neighbours for Large Student Depression Dataset
 
-[Watch the demo video](./knn_visualization/media/videos/main/2160p60/Knn.mp4)
+[View LaTeX Showcase](showcase.ipynb)

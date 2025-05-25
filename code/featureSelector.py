@@ -3,6 +3,11 @@ from sklearn.model_selection import train_test_split
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.feature_selection import SequentialFeatureSelector
 from sklearn.preprocessing import StandardScaler
+"""
+This script does feature selection on the *cleaned* dataset. We use greedy forward selection by default.
+The cleaned dataset, converted to a numerical space for KNN, has eighteen features. 
+Using n_features_to_select = 8 already gets significant results
+"""
 
 
 df = pd.read_csv('../data/cleaned_student_depression_dataset.csv')
@@ -10,11 +15,12 @@ df = pd.read_csv('../data/cleaned_student_depression_dataset.csv')
 X = df.iloc[:, :-1]
 y = df.iloc[:, -1]
 
+# Scale the dataset so that each feature contribues fairly to the distance
 scaler = StandardScaler()
 X_scaled = scaler.fit_transform(X)
 
-knn = KNeighborsClassifier(n_neighbors=8) # k = 8 does well on the full dataset
-sfs = SequentialFeatureSelector(knn, n_features_to_select=8, direction='forward') # n_features_to_select = 8 does as well as all features
+knn = KNeighborsClassifier(n_neighbors=8) # k = 8 works well for the student depression dataset
+sfs = SequentialFeatureSelector(knn, n_features_to_select=8, direction='forward') # n_features_to_select = 8 works well
 sfs.fit(X_scaled, y)
 selected_features = sfs.get_support(indices=True)
 X_selected = X.iloc[:, selected_features]

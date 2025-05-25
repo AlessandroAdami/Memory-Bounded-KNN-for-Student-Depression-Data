@@ -2,6 +2,10 @@ from manim import *
 import random
 from collections import Counter
 
+"""
+Generates videos to visualize KNN and Memory Bounded KNN prediction.
+"""
+
 class Knn(Scene):
     def construct(self):
         n = 50 

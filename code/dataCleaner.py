@@ -1,10 +1,11 @@
 import pandas as pd
 import numpy as np
-from sklearn.experimental import enable_iterative_imputer  # necessary to use module below
+from sklearn.experimental import enable_iterative_imputer  # necessary to use IterativeImputer module
 from sklearn.impute import IterativeImputer
 
 """
-This script is used to clean the dataset for the student depression prediction model.
+This script cleans the dataset for the student depression prediction model.
+It also converts categorical features into numercal features to have well defined (euclidean) distances for KNN.
 The dataset is expected to be in CSV format.
 """
 df = pd.read_csv('../data/student_depression_dataset.csv')
@@ -80,4 +81,4 @@ df = pd.concat([df, one_hot], axis=1)
 df = df[[col for col in df.columns if col != 'Depression'] + ['Depression']] # set 'Depression' as last column
 print(df.head())
 
-df.to_csv('../data/cleaned_student_depression_dataset.csv', index=False) # save cleaned dataset
+df.to_csv('../data/cleaned_student_depression_dataset.csv', index=False)

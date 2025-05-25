@@ -20,6 +20,7 @@ class KNNMemoryBounded:
         - k: Number of neighbors to consider for classification.
         - buffer_size: Maximum number of training samples to store in memory.
         - weights: function KNN uses to calculate distances between points
+        - parallelize: Whether to fit the subdatasets in parallel or sequentially
         """
         self.k = k
         self.buffer_size = buffer_size
@@ -27,10 +28,10 @@ class KNNMemoryBounded:
         self.classifier = None
         self.parallelize = parallelize
 
-    def fit(self, X, y, iterations=10):
-        self.fit_parallel(X,y,iterations=iterations) if self.parallelize else self.fit_sequential(X,y,iterations=iterations)
+    def fit(self, X, y, n_subdatasets=10):
+        self.fit_parallel(X,y,n_subdatasets=n_subdatasets) if self.parallelize else self.fit_sequential(X,y,n_subdatasets=n_subdatasets)
 
-    def fit_sequential(self, X, y, iterations):
+    def fit_sequential(self, X, y, n_subdatasets):
         """
         Fit the KNNMemoryBounded classifier to the training data.
 
@@ -43,7 +44,7 @@ class KNNMemoryBounded:
         best_model = None
         best_f1_score = 0
 
-        for _ in range(iterations):
+        for _ in range(n_subdatasets):
             X_train, X_test, y_train, y_test = train_test_split(X, y, train_size=self.buffer_size)
             classifier = KNeighborsClassifier(n_neighbors=self.k, weights=self.weights)
             classifier.fit(X_train, y_train)
@@ -58,7 +59,7 @@ class KNNMemoryBounded:
 
         self.classifier = best_model
     
-    def fit_parallel(self, X, y, iterations):
+    def fit_parallel(self, X, y, n_subdatasets):
         """
         Fit the KNNMemoryBounded classifier to the training data.
 
@@ -81,7 +82,7 @@ class KNNMemoryBounded:
         best_f1_score = 0
 
         with ThreadPoolExecutor() as executor:
-            futures = [executor.submit(evaluate_subset, _) for _ in range(iterations)]
+            futures = [executor.submit(evaluate_subset, _) for _ in range(n_subdatasets)]
             for future in as_completed(futures):
                 f1_score, model = future.result()
                 if f1_score > best_f1_score:
