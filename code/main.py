@@ -16,6 +16,8 @@ It saves some relevant plots in the "./plots" folder.
 Note: when using this script on another dataset make sure that its data is numerical for KNN distance computations.
 """
 
+# TODO: remvoe "Have you even had suicidal thoughts ?" column and rerun this
+
 start_time = time()
 
 df = pd.read_csv('../data/reduced_student_depression_dataset.csv')
@@ -37,10 +39,12 @@ metrics = {
     'precision_regular': [],
     'recall_regular': [],
     'f1_regular': [],
+    'cm_regular': [],
     'accuracy_memory': [],
     'precision_memory': [],
     'recall_memory': [],
-    'f1_memory': []
+    'f1_memory': [],
+    'cm_memory': []
 }
 
 for k in k_values:
@@ -54,7 +58,6 @@ for k in k_values:
     print(f"k={k}")
     acc = classifier.score(X_test, y_test)
     print(f"Accuracy = {acc}")
-    print(confusionMatrix(y_test, y_pred))
     print(classification_report(y_test, y_pred))
     report = classification_report(y_test, y_pred, output_dict=True)
     f1 = report['macro avg']['f1-score']
@@ -69,6 +72,7 @@ for k in k_values:
     metrics['precision_regular'].append(prec)
     metrics['recall_regular'].append(rec)
     metrics['f1_regular'].append(f1)
+    metrics['cm_regular'].append(confusionMatrix(y_test, y_pred))
 
     print("Memory bounded classifier:")
     classifier = KNNMemoryBounded(k=k, buffer_size=500, weights='distance',parallelize=True) # less than 2% of all the points!
@@ -76,7 +80,6 @@ for k in k_values:
     y_pred = classifier.predict(X_test)
     acc = classifier.score(X_test, y_test)
     print(f"Accuracy = {acc}")
-    print(confusionMatrix(y_test, y_pred))
     print(classification_report(y_test, y_pred))
     report = classification_report(y_test, y_pred, output_dict=True)
     f1 = report['macro avg']['f1-score']
@@ -90,8 +93,9 @@ for k in k_values:
     metrics['precision_memory'].append(prec)
     metrics['recall_memory'].append(rec)
     metrics['f1_memory'].append(f1)
+    metrics['cm_memory'].append(confusionMatrix(y_test, y_pred))
 
-# Plot results
+# Plot accuracy results
 
 bar_width = 0.35
 x = range(len(metrics['k']))
@@ -119,5 +123,54 @@ for ax, title, keys in zip(axs.ravel(), titles, metric_keys):
 plt.suptitle('Comparison of KNN vs Memory-Bounded KNN')
 plt.tight_layout()
 plt.savefig('plots/knn_comparison.png', dpi=300)
-#plt.show()
+
+# Plot heatmaps for confusion matrices
+
+for i, k in enumerate(metrics['k']):
+    cm_reg = metrics['cm_regular'][i]
+    cm_mem = metrics['cm_memory'][i]
+
+    fig, axs = plt.subplots(1, 2, figsize=(10, 4))
+    fig.suptitle(f'Confusion Matrix Comparison for k={k}', fontsize=16)
+
+    # --- Regular KNN ---
+    im1 = axs[0].imshow(cm_reg, cmap='Oranges')
+    axs[0].set_title("Regular KNN")
+    axs[0].set_xlabel("Predicted")
+    axs[0].set_ylabel("True")
+    axs[0].set_xticks([0, 1])
+    axs[0].set_yticks([0, 1])
+    axs[0].set_xticklabels(['1', '0'])
+    axs[0].set_yticklabels(['1', '0'])
+
+    for (x, y), val in np.ndenumerate(cm_reg):
+        axs[0].text(y, x, f"{val}", ha="center", va="center", color="black")
+
+    axs[0].set_xticks(np.arange(-0.5, 2, 1), minor=True)
+    axs[0].set_yticks(np.arange(-0.5, 2, 1), minor=True)
+    axs[0].grid(which="minor", color="gray", linestyle="--", linewidth=0.5)
+    axs[0].tick_params(which="minor", bottom=False, left=False)
+
+    # --- Memory-Bounded KNN ---
+    im2 = axs[1].imshow(cm_mem, cmap='Oranges')
+    axs[1].set_title("Memory-Bounded KNN")
+    axs[1].set_xlabel("Predicted")
+    axs[1].set_ylabel("True")
+    axs[1].set_xticks([0, 1])
+    axs[1].set_yticks([0, 1])
+    axs[1].set_xticklabels(['1', '0'])
+    axs[1].set_yticklabels(['1', '0'])
+
+    for (x, y), val in np.ndenumerate(cm_mem):
+        axs[1].text(y, x, f"{val}", ha="center", va="center", color="black")
+
+    axs[1].set_xticks(np.arange(-0.5, 2, 1), minor=True)
+    axs[1].set_yticks(np.arange(-0.5, 2, 1), minor=True)
+    axs[1].grid(which="minor", color="gray", linestyle="--", linewidth=0.5)
+    axs[1].tick_params(which="minor", bottom=False, left=False)
+
+    plt.tight_layout(rect=[0, 0.03, 1, 0.95])
+    plt.savefig(f'plots/confusion_matrices/conf_matrix_k={k}.png', dpi=300)
+    plt.close()
+
 print(time() - start_time)
