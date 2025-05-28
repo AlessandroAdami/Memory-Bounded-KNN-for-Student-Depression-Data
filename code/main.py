@@ -16,7 +16,7 @@ It saves some relevant plots in the "./plots" folder.
 Note: when using this script on another dataset make sure that its data is numerical for KNN distance computations.
 """
 
-# TODO: remvoe "Have you even had suicidal thoughts ?" column and rerun this
+# TODO: remove "Have you even had suicidal thoughts ?" column and rerun this
 
 start_time = time()
 
@@ -48,9 +48,6 @@ metrics = {
 }
 
 for k in k_values:
-    age = df['Age']
-    print(min(age))
-    print(max(age))
     classifier = KNeighborsClassifier(n_neighbors=k, weights='distance')
     classifier.fit(X_train, y_train)
     y_pred = classifier.predict(X_test)
@@ -120,7 +117,7 @@ for ax, title, keys in zip(axs.ravel(), titles, metric_keys):
     ax.legend()
     ax.grid(True)
 
-plt.suptitle('Comparison of KNN vs Memory-Bounded KNN')
+plt.suptitle('Comparison of KNN vs Memory-Bounded KNN',fontsize=18,fontweight='bold')
 plt.tight_layout()
 plt.savefig('plots/knn_comparison.png', dpi=300)
 

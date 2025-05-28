@@ -36,7 +36,6 @@ missing_values = df.isnull().sum()
 print("Missing values in each column before imputation:")
 print(missing_values[missing_values > 0])
 
-
 # Convert categorical columns to numerical values
 df['Gender'] = df['Gender'].map({'Male': 0, 'Female': 1})
 df['Family History of Mental Illness'] = df['Family History of Mental Illness'].map({'No': 0, 'Yes': 1})
@@ -62,7 +61,7 @@ df['Degree'] = df['Degree'].map({'B.Pharm': 0, 'BSc': 0, 'BA': 0, 'BCA': 0, 'B.E
                                  'PhD': 2, 'MD': 2,
                                  '\'Class 12\'': 3})
 
-# Impute missing values using IterativeImputer with Regularized Liner Regression
+# Impute missing values using IterativeImputer with BayesianRidge (regularized liner regression)
 imputer = IterativeImputer(max_iter=10, random_state=0)
 df_imputed = imputer.fit_transform(df)
 df = pd.DataFrame(df_imputed, columns=df.columns)

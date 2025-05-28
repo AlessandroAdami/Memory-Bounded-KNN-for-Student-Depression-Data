@@ -11,6 +11,7 @@ Using n_features_to_select = 8 already gets significant results
 
 
 df = pd.read_csv('../data/cleaned_student_depression_dataset.csv')
+# df = df.drop(columns='Have you ever had suicidal thoughts ?') # dropping this column causes a significant loss in accuracy
 
 X = df.iloc[:, :-1]
 y = df.iloc[:, -1]
@@ -20,7 +21,7 @@ scaler = StandardScaler()
 X_scaled = scaler.fit_transform(X)
 
 knn = KNeighborsClassifier(n_neighbors=8) # k = 8 works well for the student depression dataset
-sfs = SequentialFeatureSelector(knn, n_features_to_select=8, direction='forward') # n_features_to_select = 8 works well
+sfs = SequentialFeatureSelector(knn, n_features_to_select=5, direction='forward') # n_features_to_select = 5 works well
 sfs.fit(X_scaled, y)
 selected_features = sfs.get_support(indices=True)
 X_selected = X.iloc[:, selected_features]
