@@ -29,4 +29,13 @@ The main question regarding the memory bounded model implementation is which $m$
 
 ### The Dataset
 
-The dataset we are using in our modeling is [this](https://www.kaggle.com/datasets/adilshamim8/student-depression-dataset) student depression dataset from Kaggle. Before testing our model, we preprocessed it by imputing missing data and converting categorical features into numerical ones. Look at [dataClener.py](/code/dataCleaner.py) and [featureSelector.py](/code/featureSelector.py) for details. 
+The dataset we are using in our modeling is [this](https://www.kaggle.com/datasets/adilshamim8/student-depression-dataset) student depression dataset from Kaggle. Before testing our model, we preprocessed it by imputing missing data and converting categorical features into numerical ones. We use MICE with Bayesian Ridge regression for imputation, greedy forward selection for the features. Look at [dataClener.py](/code/dataCleaner.py) and [featureSelector.py](/code/featureSelector.py) for details. 
+
+### Results
+The plot below shows MBKNN achieving results similar to regular KNN for our dataset of choice.
+
+![Prediction Plot](./code/plots/knn_comparison.png)
+
+In this second plot we see what the models are actually predicting. Interestingly for this random run MBKNN shows a tendency to predict false positives, this is due to the random subset of datapoints it selected, and might be subject to variation.
+
+![Heatmap](./code/plots/confusion_matrices/conf_matrix_k=8.png)

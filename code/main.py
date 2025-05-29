@@ -16,8 +16,6 @@ It saves some relevant plots in the "./plots" folder.
 Note: when using this script on another dataset make sure that its data is numerical for KNN distance computations.
 """
 
-# TODO: remove "Have you even had suicidal thoughts ?" column and rerun this
-
 start_time = time()
 
 df = pd.read_csv('../data/reduced_student_depression_dataset.csv')
@@ -141,7 +139,8 @@ for i, k in enumerate(metrics['k']):
     axs[0].set_yticklabels(['1', '0'])
 
     for (x, y), val in np.ndenumerate(cm_reg):
-        axs[0].text(y, x, f"{val}", ha="center", va="center", color="black")
+        text_color = "white" if cm_reg[x, y] > cm_reg.max() / 2 else "black"
+        axs[0].text(y, x, f"{val}", ha="center", va="center", color=text_color)
 
     axs[0].set_xticks(np.arange(-0.5, 2, 1), minor=True)
     axs[0].set_yticks(np.arange(-0.5, 2, 1), minor=True)
@@ -159,7 +158,8 @@ for i, k in enumerate(metrics['k']):
     axs[1].set_yticklabels(['1', '0'])
 
     for (x, y), val in np.ndenumerate(cm_mem):
-        axs[1].text(y, x, f"{val}", ha="center", va="center", color="black")
+        text_color = "white" if cm_mem[x, y] > cm_mem.max() / 2 else "black"
+        axs[1].text(y, x, f"{val}", ha="center", va="center", color=text_color)
 
     axs[1].set_xticks(np.arange(-0.5, 2, 1), minor=True)
     axs[1].set_yticks(np.arange(-0.5, 2, 1), minor=True)
